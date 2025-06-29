@@ -1,7 +1,7 @@
 services:
 
   badgehub-frontend:
-    image: ghcr.io/badgehubcrew/badgehub-frontend:${FRONTEND_IMAGE_TAG:-latest}
+    image: ghcr.io/badgehubcrew/badgehub-app:${FRONTEND_IMAGE_TAG:-latest}
     ports:
       - "8001:8081"
     restart: always
