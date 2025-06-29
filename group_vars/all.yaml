@@ -13,7 +13,7 @@ createorupdate_main_user: false
 # Badgehub stuff
 pg_backup_dir: /backup/badgehub_data/
 deploy_dir: /home/badger
-repo_url: https://github.com/badgeteam/badgehub-api.git # URL of the repository
+repo_url: https://github.com/badgehubcrew/badgehub-app.git # URL of the repository
 repo_branch: main # Branch to checkout
 badgeinfra_reponame: badgehub-infra
 badge_infra_repo_branch: feature/keycloak_auth # set when deploying or testing infra repo
@@ -21,7 +21,7 @@ force_kc_update: true # todo try it if it works
 pg_kc_backup_dir: /backup/kc_data/
 filesystem:
   data_path: /data
-badge_infra_repo_url: https://github.com/badgeteam/badgehub-infra.git
+badge_infra_repo_url: https://github.com/badgehubcrew/badgehub-infra.git
 # UFW
 # This can be changed depending on if its dev or prod, defaulted to prod
 
