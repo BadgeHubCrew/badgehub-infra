@@ -1,5 +1,4 @@
 services:
-
   badgehub-frontend:
     image: ghcr.io/badgehubcrew/badgehub-app:${FRONTEND_IMAGE_TAG:-latest}
     ports:
@@ -29,7 +28,7 @@ services:
     env_file:
       - .env.prod
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./data/postgres:/var/lib/postgresql/data
       - ./mockup-data.sql:/docker-entrypoint-initdb.d/data.sql
       - ./backup:/var/backup
     networks:
@@ -47,7 +46,7 @@ services:
       - PGADMIN_LISTEN_PORT=8082
       - PGADMIN_CONFIG_MAX_LOGIN_ATTEMPTS=20
     volumes:
-      - pgadmin_data:/var/lib/pgadmin
+      - ./data/pgadmin:/var/lib/pgadmin
       - ./servers.json:/pgadmin4/servers.json
     networks:
       - badgehub_network
@@ -56,7 +55,3 @@ networks:
   badgehub_network:
     name: badgehub_network
     external: true
-
-volumes:
-  postgres_data:
-  pgadmin_data:
