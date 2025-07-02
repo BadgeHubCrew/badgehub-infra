@@ -1,0 +1,69 @@
+services:
+  badgehub-frontend:
+    image: ghcr.io/badgehubcrew/badgehub-app:${FRONTEND_IMAGE_TAG:-latest}
+    restart: always
+    env_file:
+      - .env.prod
+    environment:
+      FRONTEND_IMAGE_TAG: "${FRONTEND_IMAGE_TAG}"
+    networks:
+      - badgehub_network
+      - service-http
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.badgehub-frontend.rule=Host(`badge.why2025.org`)"
+      - "traefik.http.routers.badgehub-frontend.entrypoints=websecure"
+      - "traefik.http.routers.badgehub-frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.badgehub-frontend.loadbalancer.server.port=8081"
+
+  badgehub-backend:
+    image: ghcr.io/badgehubcrew/badgehub-app:${BACKEND_IMAGE_TAG:-latest}
+    env_file:
+      - .env.prod
+    depends_on:
+      - db
+    networks:
+      - badgehub_network
+      - service-http
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.badgehub-backend.rule=Host(`api.badge.why2025.org`)"
+      - "traefik.http.routers.badgehub-backend.entrypoints=websecure"
+      - "traefik.http.routers.badgehub-backend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.badgehub-backend.loadbalancer.server.port=8081"
+
+  db:
+    image: postgres:16
+    restart: always
+    env_file:
+      - .env.prod
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+      - ./mockup-data.sql:/docker-entrypoint-initdb.d/data.sql
+      - ./backup:/var/backup
+    networks:
+      - badgehub_network
+
+  pgadmin:
+    image: dpage/pgadmin4:8.11
+    container_name: pgadmin4_container
+    restart: always
+    ports:
+      - "8081:8082"
+    env_file:
+      - .env.prod
+    environment:
+      - PGADMIN_LISTEN_PORT=8082
+      - PGADMIN_CONFIG_MAX_LOGIN_ATTEMPTS=20
+    volumes:
+      - ./data/pgadmin:/var/lib/pgadmin
+      - ./servers.json:/pgadmin4/servers.json
+    networks:
+      - badgehub_network
+
+networks:
+  badgehub_network:
+    name: badgehub_network
+    external: true
+  service-http:
+    external: true
