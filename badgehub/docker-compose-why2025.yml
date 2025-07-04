@@ -15,6 +15,7 @@ services:
       - "traefik.http.routers.badgehub-frontend.entrypoints=websecure"
       - "traefik.http.routers.badgehub-frontend.tls.certresolver=letsencrypt"
       - "traefik.http.services.badgehub-frontend.loadbalancer.server.port=8081"
+      - "traefik.docker.network=service-http"
 
   badgehub-backend:
     image: ghcr.io/badgehubcrew/badgehub-app:${BACKEND_IMAGE_TAG:-latest}
@@ -31,6 +32,7 @@ services:
       - "traefik.http.routers.badgehub-backend.entrypoints=websecure"
       - "traefik.http.routers.badgehub-backend.tls.certresolver=letsencrypt"
       - "traefik.http.services.badgehub-backend.loadbalancer.server.port=8081"
+      - "traefik.docker.network=service-http"
 
   db:
     image: postgres:16

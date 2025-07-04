@@ -44,6 +44,7 @@ services:
       - "traefik.http.routers.keycloak.entrypoints=websecure"
       - "traefik.http.routers.keycloak.tls.certresolver=letsencrypt"
       - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
+      - "traefik.docker.network=service-http"
 
 networks:
   badgehub_network:
