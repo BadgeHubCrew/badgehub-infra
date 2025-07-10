@@ -46,23 +46,6 @@ services:
     networks:
       - badgehub_network
 
-  pgadmin:
-    image: dpage/pgadmin4:8.11
-    container_name: pgadmin4_container
-    restart: always
-    ports:
-      - "8081:8082"
-    env_file:
-      - .env.prod
-    environment:
-      - PGADMIN_LISTEN_PORT=8082
-      - PGADMIN_CONFIG_MAX_LOGIN_ATTEMPTS=20
-    volumes:
-      - ./data/pgadmin:/var/lib/pgadmin
-      - ./servers.json:/pgadmin4/servers.json
-    networks:
-      - badgehub_network
-
 networks:
   badgehub_network:
     name: badgehub_network

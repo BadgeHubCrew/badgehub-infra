@@ -2,3 +2,4 @@
 hosts.ini
 *.iso
 **/.env
+.idea
