@@ -1,15 +1,18 @@
-
 # badgehub-infra
 
 This repository contains the configuration for the BadgeHub infrastructure. Currently in development.
 
 ## Overview
 
-We have several roles designed to be modular, so they may be used independently. The Ansible playbooks will be designed to run but not limtied to:
+BadgeHub is ran as a set of Docker compose files on a Linux provisioned host. We use Ansible to bootstrap the host and then run the Docker composes. 
+
+We have several ansible roles designed to be modular, so they may be used independently. The Ansible playbooks will be designed to run but not limtied to:
 - BadgeHub API
 - Keycloak for authentication
 
-The repo is currently designed to be ran remotely and not on the host it's supposed to be installed on, it can still be done but it has not been tested.
+The ansible playbooks are currently designed to be ran remotely and not on the host it's supposed to be installed on, it can still be done but it has not been tested. You do need to clone the repo on the target host, if not running the ansible playbooks, to get the deployment docker compose files. 
+
+For each compose file you have a `.env.local` for setting it up locally for development purposes. 
 
 ## Goals
 
@@ -22,31 +25,39 @@ The goal is to create an easy and reproducible recipe to procure BadgeHub infras
 - Ansible core 2.17.1 minimum
 - Debian target host with internet access
 
+## Setting up the Linux host to run Badgehub
+
+Check [ansible.md](./docs/ansible.md) on how to provision your host if you do not already do so. 
+
 ## Running it locally with only docker compose
 
 First create the docker network
 
 `docker network create badgehub_network`
 
+### Networking
+
+BadgeHub application ,Keycloak and Postgres databases all see eachother within the docker network. The Docker compose files then expose the services to be latched on by a reverse proxy of some sorts or be used independently. 
+
 ### Keycloak
-If you wish to have working authentication, you must launch keycloak first:
-
-```
-cd keycloak && docker compose --env-file .env.local up -d 
-```
-Then under "Clients" you have to import `badgehub-local-client.json`. The secret of the client should match the one in .env.local for Keycloak.
-
-The keycloak role, if ran again, will remove all uncommited changes to tracked files on the remote host. 
+If you wish to have working authentication, you must use Keycloak, check `docs/` for Keycloak installation and configuration details. 
 
 ### Badgehub 
 
-Run badgehub frontend and backend with postgres database. 
+Run badgehub app with postgres database.
+
+#### Local Development
 
 `cd badgehub && docker compose --env-file .env.local up -d`
+
+#### Production
+
+`cd badgehub && docker compose up -d`
 
 ### Recommended Hardware Specifications
 
 There is currently no real world test case on how many resources does the server need as it is in early development. A good guesstimate is:
+
 #### For Test VM:
 - 2 vCPU minimum
 - 2-4GB RAM minimum 
@@ -57,79 +68,9 @@ There is currently no real world test case on how many resources does the server
 - 4GB RAM minimum
 - 50GB disk space
 
-## Playbook Variables 
-
-Some key variables to look after: 
-
-- `update_system: true` - Update system packages if first install or when needed
-- `update_docker: true` - Update Docker  
-- `createorupdate_main_user: false` - Update user if any changes needed
-
-We also have environment specific variables in for each host group in `group_vars/`. 
-
 ## Contribution Guide
 
-At the moment, one recommendation is to use `ansible-lint` to lint the playbooks. You may create a fork with a different branch name and then create a PR explaining the changes. For any other questions or issues, you may open an issue or discussion. 
-
-## Roles 
-
-### System
-
-Installs base packages, configures time and journald logging.
-
-### User
-
-Creates the user and its initial groups. Will also add SSH key authentication. The password for the user is asked at the start of the script.
-
-### UFW 
-
-We use UFW for firewalling. An OpenSSH rule is added by default via Ansible. Due to how Docker and iptables interact, it is currently not possible to block Docker-exposed ports by default. Exposed ports should be used only when needed. More details at [ufw-docker](https://github.com/chaifeng/ufw-docker/blob/master/ufw-docker).
-
-### Docker
-
-Role for installing Docker. This also includes a Docker system prune service and custom logging driver. By default, the Docker prune service runs every day at 4 AM host time.
-
-### Filesystem
-
-Currently, it just creates a directory for the Docker Compose app. Future enhancements may be added.
-
-### SSH
-
-Adds public keys and configures `sshd` with sane defaults. 
-
-### BadgeHub API
-
-Creates needed directories to deploy and will clone the repository. 
-
-## Getting Started
-
-The playbook is designed to be run from another host. First, you must have `ansible-core` and `ansible` installed, tested with at least `ansible-core 2.17.1` on ArchLinux but the host OS should not matter.
-
-### Setting Up the Environment 
-
-To start the configuration of the Debian VM, you must first configure the VM interactively. For convenience, there is a Debian preseed file included. This file can be loaded pre-boot to automatically provision the VM so it's ready to log in and configure.
-
-Some notes about it:
-- Configured to use DHCP at start
-- Creates a single partition with LVM and swap
-- Uses default credentials, which should be changed after installation
-- Runs `sshd` on start
-
-Before running you should replace the password in the line `<d-i passwd/user-password-crypted password mkpasswdoutput>` with a password generated using `mkpasswd` inside the preseed file.
-
-### Steps Before Running the Playbook
-
-1. **Generate a Public Key Pair**: Put the public key in the `public_keys/` directory in the root of the repository. Only the public key is needed as `.pub`.
-2. **Customize Variables**: Change the variables in `group_vars/all` as per your needs.
-3. **Generate a `hosts.ini` File**: Follow the example to include host information.
-
-### Running the Playbook
-
-You can start the playbook with:
-
-```sh
-ansible-playbook -i hosts.ini -k playbook.yaml --ask-become-pass
-```
+At the moment, one recommendation is to use `ansible-lint` to lint the playbooks. You may create a fork with a different branch name and then create a PR explaining the changes. For any other questions or issues, you may open an issue or discussion.
 
 ## License 
 
