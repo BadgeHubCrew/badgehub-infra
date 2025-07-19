@@ -42,6 +42,10 @@ BadgeHub application ,Keycloak and Postgres databases all see eachother within t
 ### Keycloak
 If you wish to have working authentication, you must use Keycloak, check `docs/` for Keycloak installation and configuration details. 
 
+### Database
+
+We use Postgresql database inside a Docker container. To manage it you can see [database_management.md](./docs/database_management.md) 
+
 ### Badgehub 
 
 Run badgehub app with postgres database.
