@@ -10,13 +10,13 @@ services:
       - badgehub_network
 
   keycloak:
-    image: quay.io/keycloak/keycloak:23.0.3
+    image: quay.io/keycloak/keycloak:25.0.2
     restart: always
     env_file:
       - .env
     entrypoint: sh -c "/opt/keycloak/bin/kc.sh start"
     environment:
-      - KEYCLOAK_OPTS=--proxy=xforwarded
+      - KEYCLOAK_OPTS=--proxy-headers xforwarded --http-enabled true --hostname keycloak.p1m.n
       - PROXY_ADDRESS_FORWARDING=true
       - KC_PROXY=edge
       - KC_METRICS_ENABLED=true
@@ -33,6 +33,7 @@ services:
       - start
     volumes:
       - ./auth/import:/opt/keycloak/data/import
+      - ./themes:/opt/keycloak/themes
     depends_on:
       - db-keycloak
     networks:
